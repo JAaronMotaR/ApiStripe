@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Página de Pago</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Compra el Producto</h1>
+
+    <!-- Imagen del producto -->
+    <img src="piedra.jpg" alt="Imagen del Producto" id="product-image" />
+
+    <!-- Precio del producto -->
+    <div class="price" id="product-price">$10.00 mxm</div>
+
+    <!-- Botón para iniciar el proceso de pago -->
+    <button id="checkout-button">Pagar</button>
+  </div>
+
+  <script>
+    const stripe = Stripe('pk_live_51Pah91AfMqazcVXek5tefBqAcGHluFkknWJkYGh0MyyggSy87AUz44Nl3uZW3wnBaS10edasBORCViMpTxsPmgSI00wzZGrtAZ'); // Coloca aquí tu clave pública de Stripe
+
+    // Cambia el precio según el producto seleccionado
+    const productData = {
+      "producto1": 1000,  // Precio en centavos (10.00 USD)
+      "producto2": 2000   // Precio en centavos (20.00 USD)
+    };
+
+    let selectedProductPrice = productData["producto1"];
+
+    document.getElementById("checkout-button").addEventListener("click", () => {
+      fetch("/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ price: selectedProductPrice }),
+      })
+        .then((response) => response.json())
+        .then((session) => {
+          return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .catch((error) => console.error("Error:", error));
+    });
+  </script>
+</body>
+</html>
