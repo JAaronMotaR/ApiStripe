@@ -1,51 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Página de Pago</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://js.stripe.com/v3/"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compra Producto</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+            color: #333;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #6772e5;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin: 15px 0;
+        }
+
+        img {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 100%;
+            height: 400px;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #e67e22;
+            font-size: 1.5em;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #6772e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5469d4;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Compra el Producto</h1>
+    <h1>Tienda Mariano Corp.</h1>
+    <p>Producto: Piedra Mascota</p>
+    <img src="piedra.jpg" alt="Piedra Mascota">
+    <p class="price">Precio: $20.00</p>
+    <button id="checkout-button">Comprar</button>
 
-    <!-- Imagen del producto -->
-    <img src="piedra.jpg" alt="Imagen del Producto" id="product-image" />
 
-    <!-- Precio del producto -->
-    <div class="price" id="product-price">$10.00 mxm</div>
+    <script>
+        const stripe = Stripe('pk_test_51QFRY8GHtaBvzNLC3u8OWjc8YQLCeFNwCuCWkwRMsOSXaMHV3RKlNvMMn9SyXplC0YmBjX4GTWZvUAcmQOb6yQTT00eZBZbPBp'); // Reemplaza con tu clave publicable
 
-    <!-- Botón para iniciar el proceso de pago -->
-    <button id="checkout-button">Pagar</button>
-  </div>
-
-  <script>
-    const stripe = Stripe('pk_live_51Pah91AfMqazcVXek5tefBqAcGHluFkknWJkYGh0MyyggSy87AUz44Nl3uZW3wnBaS10edasBORCViMpTxsPmgSI00wzZGrtAZ'); // Coloca aquí tu clave pública de Stripe
-
-    // Cambia el precio según el producto seleccionado
-    const productData = {
-      "producto1": 1000,  // Precio en centavos (10.00 USD)
-      "producto2": 2000   // Precio en centavos (20.00 USD)
-    };
-
-    let selectedProductPrice = productData["producto1"];
-
-    document.getElementById("checkout-button").addEventListener("click", () => {
-      fetch("/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ price: selectedProductPrice }),
-      })
-        .then((response) => response.json())
-        .then((session) => {
-          return stripe.redirectToCheckout({ sessionId: session.id });
-        })
-        .catch((error) => console.error("Error:", error));
-    });
-  </script>
+        const checkoutButton = document.getElementById('checkout-button');
+        checkoutButton.addEventListener('click', () => {
+            fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                return response.json();
+            })
+            .then((sessionId) => {
+                return stripe.redirectToCheckout({ sessionId: sessionId.id });
+            })
+            .then((result) => {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
